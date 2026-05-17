@@ -1,6 +1,6 @@
 [submodule "grconvnet"]
 	path = grconvnet
-	url = https://github.com/skumra/robotic-grasping.git
+	url = https://github.com/Alvin0523/robotic-grasping.git
 [submodule "Jacquard_V2"]
 	path = Jacquard_V2
-	url = https://github.com/lqh12345/Jacquard_V2.git
+	url = https://github.com/Alvin0523/Jacquard_V2.git
