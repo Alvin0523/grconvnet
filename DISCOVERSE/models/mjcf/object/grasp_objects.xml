@@ -1,0 +1,8 @@
+  <mujocoinclude>
+    <asset>
+    <mesh name="banana_part_0" file="obj/banana/part_0.obj" scale="1 1 1"/>
+    <mesh name="banana_part_1" file="obj/banana/part_1.obj" scale="1 1 1"/>
+    <mesh name="banana_part_2" file="obj/banana/part_2.obj" scale="1 1 1"/>
+    <mesh name="banana_part_3" file="obj/banana/part_3.obj" scale="1 1 1"/>
+    </asset>
+  </mujocoinclude>

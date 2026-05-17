@@ -1,0 +1,10 @@
+data/
+output/
+.pixi/
+__pycache__/
+*.pyc
+*.egg-info/
+*.pth
+*.pt
+wandb/
+logs/

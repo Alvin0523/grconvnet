@@ -1,0 +1,9 @@
+numpy
+scipy
+mediapy
+opencv-python
+mujoco
+transforms3d
+plyfile
+glm
+scikit-image
