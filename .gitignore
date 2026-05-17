@@ -1,10 +1,11 @@
-data/
-output/
+data/*
+!data/.gitkeep
+output/*
+!output/.gitkeep
 .pixi/
 __pycache__/
 *.pyc
 *.egg-info/
 *.pth
 *.pt
-wandb/
 logs/
