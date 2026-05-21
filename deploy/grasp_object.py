@@ -84,18 +84,19 @@ class RobotInterface:
 def run(detector_type):
     assert detector_type in ['circle', 'nn']
 
+    # start camera first so it warms up while robot resets
+    pipeline = rs.pipeline()
+    config = rs.config()
+    cam2robot = read_extrinsics(filename="calibration/calibration.json")
+    if detector_type in ['circle', 'nn']:
+        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 15)
+        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 15)
+    pipeline.start(config)
+    time.sleep(3)  # let both streams stabilise
+
     # start the robot
     api = RobotInterface()
     api.reset()
-    # start the camera
-    pipeline = rs.pipeline()
-    config = rs.config()
-    # read the transformation you have computed on your platform 
-    cam2robot = read_extrinsics(filename="calibration/calibration.json")
-    if detector_type in ['circle', 'nn']:
-        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-    pipeline.start(config)
     # get essential parameters
     profile = pipeline.get_active_profile()
     depth_scale = profile.get_device().first_depth_sensor().get_depth_scale()
