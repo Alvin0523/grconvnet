@@ -2,7 +2,6 @@ import torch
 import numpy as np
 
 from GraspDetector import GraspDetector
-from utils.dataset_processing.grasp import detect_grasps
 from inference.post_process import post_process_output
 
 
@@ -43,21 +42,14 @@ class GraspDetectorNN(GraspDetector):
             ang = angle_img[0]
             wid = width_img[0]
             print(f"[GraspDetectorNN] Q max={q.max():.3f} q.shape={q.shape}")
-            grasps = detect_grasps(q, ang, width_img=wid, no_grasps=1)
-            if not grasps:
-                from utils.dataset_processing.grasp import Grasp
-                peak  = np.unravel_index(np.argmax(q), q.shape)
-                grasp = Grasp(peak, ang[peak])
-                grasp.length = wid[peak]
-                grasp.width  = grasp.length / 2
-            else:
-                grasp = grasps[0]
+            # use argmax directly — always gives a clean (row, col) tuple
+            peak     = np.unravel_index(np.argmax(q), q.shape)
+            row, col = int(peak[0]), int(peak[1])
+            angle    = float(ang[peak])
+            width    = float(wid[peak])
 
-        print(f"[GraspDetectorNN] grasp.center={grasp.center} type={type(grasp.center)}")
-        row = int(grasp.center[0])
-        col = int(grasp.center[1])
         center = (top + row, left + col)
-        return [center, grasp.angle, grasp.length]
+        return [center, angle, width]
 
     def predict_grasp_3d(self, rgb, dep, id=999):
         """Predict 2D grasp then reproject to 3D camera frame."""
