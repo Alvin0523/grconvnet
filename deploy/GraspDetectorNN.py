@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import cv2
 
 from GraspDetector import GraspDetector
 from inference.post_process import post_process_output
@@ -49,7 +50,14 @@ class GraspDetectorNN(GraspDetector):
             width    = float(wid[peak])
 
         center = (top + row, left + col)
-        return [center, angle, width]
+
+        # save debug images so you can see what the camera captured
+        cv2.imwrite("captured_image.jpg", rgb)
+        vis = rgb.copy()
+        cv2.circle(vis, (center[1], center[0]), 5, (0, 255, 0), -1)
+        cv2.imwrite("captured_image_with_grasp.jpg", vis)
+
+        return [center, 0.0, width]  # TODO: angle forced to 0 to test IK feasibility
 
     def predict_grasp_3d(self, rgb, dep, id=999):
         """Predict 2D grasp then reproject to 3D camera frame."""
