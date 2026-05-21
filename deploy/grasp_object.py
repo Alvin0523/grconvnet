@@ -122,7 +122,7 @@ def run(detector_type):
         counter = 0
         while True:
             counter += 1
-            frames = pipeline.wait_for_frames()
+            frames = pipeline.wait_for_frames(timeout_ms=15000)
             depth_frame = frames.get_depth_frame()
             color_frame = frames.get_color_frame()
             color_raw = color_frame.get_data()
