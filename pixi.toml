@@ -119,6 +119,10 @@ description = "Upload best checkpoint to HuggingFace Hub  |  hf upload <repo-id>
 cmd  = "hf upload alvin0523/grconvnet-jacquard-v2 $(ls output/{{ run }}/epoch_*.pt | sort -t_ -k4 -V | tail -1) model.pt"
 args = [{ arg = "run" }]
 
+[tasks.download]
+description = "Download trained model from HuggingFace Hub into trained-models/"
+cmd = "hf download alvin0523/grconvnet-jacquard-v2 model.pt --local-dir grconvnet/trained-models/jacquard-rgbd-grconvnet3-drop0-ch32"
+
 [dependencies]
 python       = "3.11.*"
 numpy        = ">=2.4.3,<3"
