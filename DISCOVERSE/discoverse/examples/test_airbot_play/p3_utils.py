@@ -380,7 +380,6 @@ class CircleGraspDetector(object):
 import torch
 
 from utils.dataset_processing.grasp import detect_grasps
-from utils.dataset_processing import evaluation
 from inference.post_process import post_process_output
 
 
@@ -388,33 +387,50 @@ class GraspDetector(CircleGraspDetector):
     def __init__(self, device, mat=None):
         """Load the grasp model and set inference parameters."""
         super().__init__(mat=mat)
-        model_name = "robotic-grasping/trained-models/jacquard-d-grconvnet3-drop0-ch32/epoch_50_iou_0.94"
+        model_name = "grconvnet/trained-models/jacquard-rgbd-grconvnet3-drop0-ch32/model.pt"
         self.model = torch.load(model_name, weights_only=False).to(device)
         self.device = device
         self.input_size = 300
-    
-    def predict_grasp(self, img, id=999):
-        """Predict one grasp from an input image and map it to original coordinates."""
-        # crop the center of the image to self.input_size x self.input_size
-        top = (img.shape[0] - self.input_size)//2
-        left = (img.shape[1] - self.input_size)//2
-        img = img[top:top+self.input_size,left:left+self.input_size]
-        if len(img.shape) == 2:
-            # Depth input.
-            img = np.clip((img - img.mean()), -1, 1)
-            x = img[None,None,...]
-            x = torch.tensor(x).to(self.device).float()
-        else:
-            # RGB or RGB-D input.
-            x = img.transpose((2,0,1))[None,...]
-            x = torch.tensor(x).to(self.device).float()
+
+    def predict_grasp(self, rgb, dep, id=999):
+        """Predict one grasp from an RGBD input and map it to original coordinates."""
+        top  = (dep.shape[0] - self.input_size) // 2
+        left = (dep.shape[1] - self.input_size) // 2
+
+        dep_crop = dep[top:top+self.input_size, left:left+self.input_size]
+        rgb_crop = rgb[top:top+self.input_size, left:left+self.input_size]
+
+        # normalise depth: zero-centre, clip to [-1, 1]
+        dep_norm = np.clip((dep_crop - dep_crop.mean()), -1, 1).astype(np.float32)
+
+        # normalise RGB: [0,1] then zero-centre, transpose to (3,H,W)
+        rgb_norm = rgb_crop.astype(np.float32) / 255.0
+        rgb_norm -= rgb_norm.mean()
+        rgb_norm = rgb_norm.transpose((2, 0, 1))
+
+        # stack as [depth, R, G, B] matching training order
+        x = np.concatenate([dep_norm[None, ...], rgb_norm], axis=0)
+        x = torch.tensor(x[None, ...]).to(self.device).float()
+
         with torch.no_grad():
             pos_img, angle_img, width_img = post_process_output(*self.model(x))
-            evaluation.plot_output(img, img, pos_img, angle_img, no_grasps=1, grasp_width_img=width_img, id=id)
-            grasps = detect_grasps(pos_img, angle_img, width_img=width_img, no_grasps=1)
-            grasp = grasps[0]
-        center = (top+grasp.center[0], left+grasp.center[1])
-        angle = grasp.angle
-        width = grasp.length
+            q   = pos_img[0]
+            ang = angle_img[0]
+            wid = width_img[0]
+            print(f"[GraspDetector] Q max={q.max():.3f} mean={q.mean():.3f}")
+            grasps = detect_grasps(q, ang, width_img=wid, no_grasps=1)
+            if not grasps:
+                print("[GraspDetector] no peak above threshold, using argmax")
+                from utils.dataset_processing.grasp import Grasp
+                peak = np.unravel_index(np.argmax(q), q.shape)
+                grasp = Grasp(peak, ang[peak])
+                grasp.length = wid[peak]
+                grasp.width  = grasp.length / 2
+            else:
+                grasp = grasps[0]
+
+        center = (top + grasp.center[0], left + grasp.center[1])
+        angle  = grasp.angle
+        width  = grasp.length
         return [center, angle, width]
 

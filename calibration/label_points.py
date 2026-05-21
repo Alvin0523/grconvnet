@@ -2,6 +2,9 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 import json
+import os
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
 
 pipeline = rs.pipeline()
 config = rs.config()
@@ -103,13 +106,13 @@ try:
             break
         elif key & 0xFF == ord('s'):  # Press 's' to save points
             print("save points!")
-            save_points_to_json('points.json')
+            save_points_to_json(os.path.join(_HERE, 'points.json'))
         elif key & 0xFF == ord('l'):  # Press 'l' to load points
             print("load points!")
-            load_points_from_json('points.json')
+            load_points_from_json(os.path.join(_HERE, 'points.json'))
         elif key & 0xFF == ord('i'):  # Press 'i' to save RGB image
             print("save RGB image!")
-            save_rgb_image('color_image.png', color_image)
+            save_rgb_image(os.path.join(_HERE, 'color_image.png'), color_image)
         
 
 finally:

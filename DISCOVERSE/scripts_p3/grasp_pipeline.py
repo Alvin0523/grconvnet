@@ -51,7 +51,7 @@ def detect_grasp(detector_type, img, dep, device, save_path, grasp_id):
 		grasp2d = detector.predict_grasp(img, save_path)
 	else:
 		detector = GraspDetector(device)
-		grasp2d = detector.predict_grasp(dep, id=grasp_id)
+		grasp2d = detector.predict_grasp(img, dep, id=grasp_id)
 
 	if grasp2d is None:
 		raise RuntimeError("No valid grasp detected.")

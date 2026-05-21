@@ -75,14 +75,15 @@ def run_evaluation(trials=10, lift_threshold=0.05, device="cuda", seed=12345):
             continue
         initial_z = float(env.mj_data.xpos[body_id][2])
 
+        img = pri_obs.get('img', [None])[0]
         dep = pri_obs.get('dep', [None])[0]
-        if dep is None:
-            print("Depth observation missing; marking trial as failure")
+        if dep is None or img is None:
+            print("Observation missing; marking trial as failure")
             continue
 
-        # detect grasp in depth image
+        # detect grasp in RGBD image
         try:
-            grasp2d = detector.predict_grasp(dep, id=t)
+            grasp2d = detector.predict_grasp(img, dep)
             grasp3d = detector.grasp_2d_to_3d(grasp2d, dep)
         except Exception as e:
             print("Grasp detection failed")

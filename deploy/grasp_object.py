@@ -116,8 +116,7 @@ def run(detector_type):
         detector = GraspDetectorCircle(profile=profile, mat=intrinsics_to_numpy(depth_intrin))
     elif detector_type == "nn":
         from GraspDetectorNN import GraspDetectorNN
-        model_path = "graspcnn/output/models/26_04_20_16_35_depth_only/epoch_30_iou_0.72"
-        detector = GraspDetectorNN(model_path, "cuda", mat=intrinsics_to_numpy(depth_intrin))
+        detector = GraspDetectorNN(device="cuda", mat=intrinsics_to_numpy(depth_intrin))
 
     try:
         counter = 0
@@ -182,5 +181,5 @@ def run(detector_type):
 
 
 if __name__ == "__main__":
-    run('circle') # predict circle on object and grasp
-    # run('nn') # predict grasp
+    run('nn')
+    # run('circle')

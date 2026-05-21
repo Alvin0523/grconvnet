@@ -1,5 +1,6 @@
 from airbot_py.arm import AIRBOTPlay, RobotMode
 import json
+import os
 import time
 
 # ========================
@@ -7,7 +8,7 @@ import time
 # ========================
 AIRBOT_IP = "192.168.209.101"
 AIRBOT_PORT = 50051
-SAVE_FILE = "robot_poses.json"
+SAVE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "robot_poses.json")
 MAX_POSES = 6
 
 def main():

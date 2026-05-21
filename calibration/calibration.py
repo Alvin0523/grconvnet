@@ -1,9 +1,11 @@
 import json
+import os
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import cv2
 import open3d as o3d
-import json
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
 
 def read_points_camera_3d(filename):
     with open(filename, 'r') as f:
@@ -13,7 +15,7 @@ def read_points_camera_3d(filename):
 
 
 def read_poses_robot_3d():
-    filename = "robot_poses.json"
+    filename = os.path.join(_HERE, "robot_poses.json")
     poses_robot = json.load(open(filename, 'r'))
     mats_robot = []
     for pose in poses_robot:
@@ -139,7 +141,7 @@ def get_points_robot_3d(poses):
     return points_robot
 
 
-def save_calibration(t_mat, filename='calibration.json'):
+def save_calibration(t_mat, filename=os.path.join(_HERE, 'calibration.json')):
     # Convert the transformation matrix to a dictionary
     calibration_data = {
         'transformation_matrix': t_mat.reshape(-1).tolist()
@@ -151,7 +153,7 @@ def save_calibration(t_mat, filename='calibration.json'):
     
 
 if __name__ == "__main__":
-    filename = 'points.json'
+    filename = os.path.join(_HERE, 'points.json')
     points_camera = read_points_camera_3d(filename)
     points_robot = get_points_robot_3d(read_poses_robot_3d())
     print("Robot")
