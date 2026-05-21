@@ -25,6 +25,9 @@ class GraspDetectorNN(GraspDetector):
         dep_crop = dep[top:top+INPUT_SIZE, left:left+INPUT_SIZE]
         rgb_crop = rgb[top:top+INPUT_SIZE, left:left+INPUT_SIZE]
 
+        # camera streams as BGR — convert to RGB to match training data
+        rgb_crop = rgb_crop[:, :, ::-1].copy()
+
         dep_norm = np.clip((dep_crop - dep_crop.mean()), -1, 1).astype(np.float32)
 
         rgb_norm = rgb_crop.astype(np.float32) / 255.0
@@ -39,6 +42,7 @@ class GraspDetectorNN(GraspDetector):
             q   = pos_img[0]
             ang = angle_img[0]
             wid = width_img[0]
+            print(f"[GraspDetectorNN] Q max={q.max():.3f} q.shape={q.shape}")
             grasps = detect_grasps(q, ang, width_img=wid, no_grasps=1)
             if not grasps:
                 from utils.dataset_processing.grasp import Grasp
@@ -49,7 +53,10 @@ class GraspDetectorNN(GraspDetector):
             else:
                 grasp = grasps[0]
 
-        center = (top + grasp.center[0], left + grasp.center[1])
+        print(f"[GraspDetectorNN] grasp.center={grasp.center} type={type(grasp.center)}")
+        row = int(grasp.center[0])
+        col = int(grasp.center[1])
+        center = (top + row, left + col)
         return [center, grasp.angle, grasp.length]
 
     def predict_grasp_3d(self, rgb, dep, id=999):
