@@ -38,11 +38,11 @@ class GraspDetectorNN(GraspDetector):
 
         with torch.no_grad():
             pos_img, angle_img, width_img = post_process_output(*self.model(x))
-            q   = pos_img[0]
-            ang = angle_img[0]
-            wid = width_img[0]
+            # ensure 2D (H, W) regardless of how squeeze worked
+            q   = np.squeeze(pos_img).reshape(INPUT_SIZE, -1)
+            ang = np.squeeze(angle_img).reshape(INPUT_SIZE, -1)
+            wid = np.squeeze(width_img).reshape(INPUT_SIZE, -1)
             print(f"[GraspDetectorNN] Q max={q.max():.3f} q.shape={q.shape}")
-            # use argmax directly — always gives a clean (row, col) tuple
             peak     = np.unravel_index(np.argmax(q), q.shape)
             row, col = int(peak[0]), int(peak[1])
             angle    = float(ang[peak])
