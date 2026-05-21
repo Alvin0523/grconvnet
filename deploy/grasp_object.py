@@ -46,13 +46,17 @@ class RobotInterface:
 
     def move_to(self, pose, end=None):
         safe_pose = [[pose[0][0], pose[0][1], max(pose[0][2], 0.008)], pose[1]]
+        print(f"[DEBUG] move_to pose={safe_pose}")
         with AIRBOTPlay(url=AIRBOT_IP, port=AIRBOT_PORT) as robot:
-            robot.switch_mode(RobotMode.PLANNING_POS)
+            ok = robot.switch_mode(RobotMode.PLANNING_POS)
+            print(f"[DEBUG] switch_mode PLANNING_POS -> {ok}")
             robot.set_speed_profile(SpeedProfile.SLOW)
-            robot.move_to_cart_pose(safe_pose)
+            ok = robot.move_to_cart_pose(safe_pose)
+            print(f"[DEBUG] move_to_cart_pose -> {ok}")
             time.sleep(5)
             if end is not None:
-                robot.move_eef_pos([end])
+                ok = robot.move_eef_pos([end])
+                print(f"[DEBUG] move_eef_pos({end}) -> {ok}")
                 time.sleep(1)
 
     def open_gripper(self):
