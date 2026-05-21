@@ -430,6 +430,12 @@ class GraspDetector(CircleGraspDetector):
                 grasp = grasps[0]
 
         center = (top + grasp.center[0], left + grasp.center[1])
+        d = dep[center]
+        print(f"[GraspDetector] center={center} depth={d:.3f}m")
+        # valid object depth range: banana at ~0.70-0.80m, table at ~0.82m
+        # arm links appear at <0.60m (close to camera), background >0.84m
+        if not (0.60 < d < 0.84):
+            raise RuntimeError(f"Grasp center depth {d:.3f}m outside valid range [0.60, 0.84]")
         angle  = grasp.angle
         width  = grasp.length
         return [center, angle, width]
