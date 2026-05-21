@@ -37,13 +37,8 @@ class RobotInterface:
         return True
     
     def idle_grasp(self):
-        """
-        Moves the robot to the pre-pre-grasp pose.
-
-        Returns:
-            bool: True if the movement was successful.
-        """
         with AIRBOTPlay(url=AIRBOT_IP, port=AIRBOT_PORT) as robot:
+            robot.switch_mode(RobotMode.PLANNING_POS)
             robot.set_speed_profile(SpeedProfile.SLOW)
             robot.move_to_cart_pose(self.waypoints[1])
             time.sleep(2)
