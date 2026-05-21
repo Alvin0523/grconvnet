@@ -27,13 +27,8 @@ class RobotInterface:
         """
 
     def reset(self):
-        """
-        Resets the robot to its initial pose.
-
-        Returns:
-            bool: True if the reset was successful.
-        """
         with AIRBOTPlay(url=AIRBOT_IP, port=AIRBOT_PORT) as robot:
+            robot.switch_mode(RobotMode.PLANNING_POS)
             robot.set_speed_profile(SpeedProfile.SLOW)
             robot.move_to_cart_pose(self.waypoints[1])
             time.sleep(2)
@@ -55,15 +50,10 @@ class RobotInterface:
         return True
 
     def move_to(self, pose, end=None):
-        """
-        Moves the robot to a specified pose.
-
-        Args:
-            pose (list): The target pose [position, quaternion].
-            end (float, optional): The end effector state. Defaults to None.
-        """
         safe_pose = [[pose[0][0], pose[0][1], max(pose[0][2], 0.008)], pose[1]]
         with AIRBOTPlay(url=AIRBOT_IP, port=AIRBOT_PORT) as robot:
+            robot.switch_mode(RobotMode.PLANNING_POS)
+            robot.set_speed_profile(SpeedProfile.SLOW)
             robot.move_to_cart_pose(safe_pose)
             time.sleep(5)
             if end is not None:
