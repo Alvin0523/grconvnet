@@ -126,17 +126,15 @@ def get_post_grasp(target_mat, target_pos, depth):
 
 
 def fill_hole(img_arr):
-    """
-    Fills holes (zero values) in an image array using distance transform.
-
-    Args:
-        img_arr (np.ndarray): The input image array.
-
-    Returns:
-        np.ndarray: The image array with holes filled.
-    """
-    # TODO: implement the function to overcome sim2real gap for depth images
-    return img_arr
+    """Fill zero/missing depth pixels using nearest-neighbour inpainting."""
+    from scipy.ndimage import distance_transform_edt
+    missing = (img_arr == 0)
+    if not missing.any():
+        return img_arr
+    out = img_arr.copy()
+    _, idx = distance_transform_edt(missing, return_indices=True)
+    out[missing] = img_arr[tuple(idx[:, missing])]
+    return out
 
 
 def intrinsics_to_numpy(intrinsics):
